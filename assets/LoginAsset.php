@@ -12,7 +12,7 @@ use yii\web\AssetBundle;
  */
 class LoginAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/webvimark/module-user-management/assets';
+    public $sourcePath = '@vendor/sadovnikpv/webvimark-module-user-management-bs4/assets';
 
     public $css = [
         'css/login.css',
