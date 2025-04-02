@@ -261,12 +261,20 @@ abstract class AbstractItem extends ActiveRecord
 
 	public static function beforeAddChildren($parentName, $childrenNames, $throwException = false)
 	{
+		if (phpversion() >= '8.0.0') {
+			$throwException = null; //Missing variable error
+		}
+		
 		$event = new AbstractItemEvent(compact('parentName', 'childrenNames', 'throwException'));
 		$event->trigger(get_called_class(), self::EVENT_BEFORE_ADD_CHILDREN, $event);
 	}
 
 	public static function beforeRemoveChildren($parentName, $childrenNames)
 	{
+		if (phpversion() >= '8.0.0') {
+			$throwException = null; //Missing variable error
+		}
+		
 		$event = new AbstractItemEvent(compact('parentName', 'childrenNames', 'throwException'));
 		$event->trigger(get_called_class(), self::EVENT_BEFORE_REMOVE_CHILDREN, $event);
 	}
