@@ -171,6 +171,12 @@ class UserManagementModule extends \yii\base\Module
 		'offset'    => 5
 	];
 
+    /**
+     * Криптосоль для генерации капчи (нужно изменить в своем проекте)
+     * @var string
+     */
+	public $captchaCryptoSalt = '$1$mousesqueak$';
+
 	/**
 	 * Table aliases
 	 *
@@ -192,6 +198,8 @@ class UserManagementModule extends \yii\base\Module
 	public function init()
 	{
 		parent::init();
+
+        Yii::setAlias('@user-management', dirname(__DIR__) . '\webvimark-module-user-management-bs4');
 
 		$this->prepareMailerOptions();
 	}

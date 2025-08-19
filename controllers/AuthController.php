@@ -15,13 +15,22 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
+use yii\helpers\Json;
 
 class AuthController extends BaseController
 {
 	/**
 	 * @var array
 	 */
-	public $freeAccessActions = ['login', 'logout', 'confirm-registration-email'];
+    public $freeAccessActions = ['login', 'logout', 'confirm-registration-email', 'password-recovery', 'check-captcha'];
+
+    public function beforeAction($action)
+    {
+        if (in_array($action->id, ['login', 'check-captcha'])) {
+            $this->enableCsrfValidation = false;
+        }
+        return parent::beforeAction($action);
+    }
 
 	/**
 	 * @return array
@@ -32,6 +41,42 @@ class AuthController extends BaseController
 			'captcha' => $this->module->captchaOptions,
 		];
 	}
+
+    /**
+     * Проверяет правильность ввода текста капчи
+     * Принимает данные в формате JSON, где captchaInput - текст, введенный пользователем, captchaToken - хэш правильного кода
+     * @return string 1 если введена верно, 0 если неверно
+     */
+    public function actionCheckCaptcha()
+    {
+        $raw_request_data = Yii::$app->request->getRawBody();
+        $request_obj = Json::decode(Yii::$app->request->getRawBody(), false);
+
+        if ($this->captchaValidate($request_obj->captchaInput, $request_obj->captchaToken)) {
+            return '1';
+        }
+
+        return '0';
+
+    }
+
+    /**
+     * Вычисление хеша полученного от пользователя текста капчи
+     * @param String $captcha_input Текст, введенный пользователем в поле капчи
+     * @param String $captcha_token Хэш реального текста, который был на картинке
+     * @return boolean Возвращает True, если капча введена верно, False, если не верно.
+     */
+    public function captchaValidate($captcha_input, $captcha_token) {
+        $salt = Yii::$app->getModule('user-management')->captchaCryptoSalt;
+
+        $hash_with_salt = crypt($captcha_input, $salt);
+
+        $hash_without_salt = substr($hash_with_salt, strlen($salt));
+
+        if ( $captcha_token == $hash_without_salt ) return true;
+
+        return false;
+    }
 
 	/**
 	 * Login form
@@ -46,6 +91,13 @@ class AuthController extends BaseController
 		}
 
 		$model = new LoginForm();
+
+        // Это вставка в модуль user-management
+        if (!empty(Yii::$app->request->post())) {
+            if (!($this->captchaValidate(Yii::$app->request->post('captcha-input'), Yii::$app->request->post('captcha-token')))) {
+                return $this->goHome();
+            }
+        }
 
 		if ( Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post()) )
 		{
