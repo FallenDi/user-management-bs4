@@ -3,7 +3,9 @@
 
 namespace webvimark\modules\UserManagement\components;
 
+use webvimark\modules\UserManagement\UserManagementModule;
 use Yii;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 /**
@@ -54,11 +56,10 @@ class Captcha
         // Очищаем старые файлы капчи перед генерацией новой
         $this->cleanOldCaptchaFiles();
 
-
-
         // 1. Генерируем код капчи
         // Получаем криптосоль
         $salt = Yii::$app->getModule('user-management')->captchaCryptoSalt;
+
         // 1.1. Устанавливаем символы, из которых будет составляться код капчи
         // $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz';
 
@@ -83,8 +84,8 @@ class Captcha
 //        }
 
         // 2.0 Генерируем хеш того кода, что изображен на картинке
-        $this->hash_with_salt = crypt($code, $this->salt);
-        $this->hash_without_salt = substr($this->hash_with_salt, strlen($this->salt));
+        $this->hash_with_salt = crypt($code, $salt);
+        $this->hash_without_salt = substr($this->hash_with_salt, strlen($salt));
 
         // 3. Генерируем изображение
         $captchaBgNumber = rand(1,3);
@@ -170,16 +171,44 @@ class Captcha
 
     /**
      * Возвращает скрытый инпут с хешем текущего текста капчи. Разместите его в своей HTML-форме
-     * @return string
+     * @return string HTML код элемента
      */
-    public function render_hidden_input() {
+    public function renderHiddenInput() {
         return "<input type='hidden' id='captcha-token' name='captcha-token' value='$this->hash_without_salt'>";
+    }
+
+    /**
+     * Возвращает HTML код поля для ввода текста с капчи. Разместите его в своей HTML-форме
+     * @return string HTML код элемента
+     */
+    public function renderVisInput() {
+        return "<div class=\"form-label-group login-page__input-wrap field-loginform-username required\">
+                    <input type=\"text\" id=\"captcha-input\" class=\"form-control\" name=\"captcha-input\"
+                           autocomplete=\"off\" required=\"true\" aria-required=\"true\">
+                    <label for=\"captcha-input\">Введите текст с картинки</label>
+                </div>";
+    }
+
+    /**
+     * Возвращает HTML код изображения с надписью капчи в блоке div. Разместите его в своей HTML-форме
+     * @return string HTML код элемента
+     */
+    public function renderCaptchaImg() {
+        return Html::img(
+                    '@web/' . $this->getImagePath(),
+                    ['class' => 'login-page__captcha', 'alt' => 'CAPTCHA']
+                );
+    }
+
+    public function renderSubmitFormBtn($disabledClass = NULL) {
+        return Html::submitButton(UserManagementModule::t('front', 'Войти'), ['disabled' => 'true',
+                'class' => 'login-page__login-btn-disabled', 'data-disabled-class' => $disabledClass]);
     }
 
     /**
      * @return string Полный путь к созданному файлу - изображению с текстом капчи
      */
-    public function get_image_path() {
+    public function getImagePath() {
         return $this->path_captcha_img;
     }
     
