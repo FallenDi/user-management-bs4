@@ -199,7 +199,7 @@ class UserManagementModule extends \yii\base\Module
 	{
 		parent::init();
 
-        Yii::setAlias('@user-management', dirname(__DIR__) . '\webvimark-module-user-management-bs4');
+        Yii::setAlias('@user-management', dirname(__DIR__) . '/webvimark-module-user-management-bs4');
 
 		$this->prepareMailerOptions();
 	}
