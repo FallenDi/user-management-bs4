@@ -238,7 +238,7 @@ class UserManagementModule extends \yii\base\Module
 				'class'          => 'yii\i18n\PhpMessageSource',
 				'sourceLanguage' => 'en',
 				// 'basePath'       => '@vendor/webvimark/module-user-management/messages',
-                'basePath'       => '@vendor/sadovnikpv/webvimark-module-user-management-bs4/messages',
+                'basePath'       => '@vendor/fallendi/webvimark-module-user-management-bs4/messages',
 				'fileMap'        => [
 					'modules/user-management/back' => 'back.php',
 					'modules/user-management/front' => 'front.php',
