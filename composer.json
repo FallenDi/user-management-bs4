@@ -1,5 +1,5 @@
 {
-	"name": "sadovnikpv/webvimark-module-user-management-bs4",
+	"name": "fallendi/webvimark-module-user-management-bs4",
 	"description": "User with improved RBAC, with bs4",
 	"autoload": {
 		"psr-4": {
